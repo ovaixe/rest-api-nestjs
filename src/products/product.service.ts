@@ -20,11 +20,44 @@ export class ProductService {
     }
   }
 
+  async getProductById(id: number) {
+    try {
+      const product = await this.productRepo.findOneBy({ id });
+      if (!product) return { statusCode: 404, error: 'Product not found!' };
+      return { statusCode: 200, data: product };
+    } catch (err) {
+      return { statusCode: 500, error: err.message };
+    }
+  }
+
   async createProduct(createProductDto: ProductDto) {
     try {
       const productLead = this.productRepo.create(createProductDto);
       const product = await this.productRepo.save(productLead);
       return { statusCode: 200, data: product };
+    } catch (err) {
+      return { statusCode: 500, error: err.message };
+    }
+  }
+
+  async updateProductById(id: number, updateProductDto: ProductDto) {
+    try {
+      const product = await this.productRepo.findOneBy({ id });
+      if (!product) return { statusCode: 404, error: 'Product not found!' };
+      Object.assign(product, updateProductDto);
+      const updatedProduct = await this.productRepo.save(product);
+      return { statusCode: 200, data: updatedProduct };
+    } catch (err) {
+      return { statusCode: 500, error: err.message };
+    }
+  }
+
+  async deleteProductById(id: number) {
+    try {
+      const product = await this.productRepo.findOneBy({ id });
+      if (!product) return { statusCode: 404, error: 'Product not found!' };
+      const res = await this.productRepo.remove(product);
+      return { statusCode: 200, data: res };
     } catch (err) {
       return { statusCode: 500, error: err.message };
     }
